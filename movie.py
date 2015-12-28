@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import urllib
+import json
 from bs4 import BeautifulSoup
 
+from response import Response
+
+def get_movie(msg_text):
+    if u'新片' in msg_text:
+        attachments = top_movie()
+    else:
+        attachments = week_movie()
+    return Response(text="Hey Guys", attachments=json.dumps(attachments))
 
 def week_movie():
     url = "https://tw.movies.yahoo.com/movie_thisweek.html"

@@ -23,7 +23,7 @@ BIND_CH = ["C0HE01E2Y"]
 # 關鍵字列表，當句子中相關的詞彙時，使用該詞彙相關的功能
 KEYWORD_LIST = {
     '午餐,晚餐':search.search_eat,
-    '新片,排行':movie.top_movie,
+    '新片,電影':movie.get_movie,
     '天氣':weather.weather,
     '機器':hello_msg,
 }
@@ -127,6 +127,7 @@ def msg_handler(msgs):
             continue
         if abs(float(msg["ts"]) - time.time()) < 90:  # If this message is 90 second before, ignore this message
             word_list = cut_msg(msg["text"])  # 得到切好的詞
+            print word_list
             for word_with_flag in word_list:
                 if word_with_flag['flag'] == 'n':  # Use noun in message text to decide which function should be executed
                     for keyword in KEYWORD_LIST.keys():
