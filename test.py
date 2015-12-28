@@ -8,19 +8,22 @@ import movie
 import random
 import weather
 import ConfigParser
+
+from hello import hello_msg
 # encoding=utf-8
 import jieba
 import jieba.posseg as pseg
 # general = C024FEN2R
 # test room C0E6X8ELB
 
-BIND_CH = ["C0E6X8ELB"]
+BIND_CH = ["C0HE01E2Y"]
 
 # 關鍵字列表，當句子中相關的詞彙時，使用該詞彙相關的功能
 KEYWORD_LIST = {
     '午餐,晚餐':search.search_eat,
     '新片,排行':movie.top_movie,
     '天氣':weather.weather,
+    '機器':hello_msg,
 }
 
 def send_eat_msg(sc, channel, args):
