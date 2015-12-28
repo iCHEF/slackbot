@@ -10,6 +10,7 @@ import weather
 import ConfigParser
 # encoding=utf-8
 import jieba
+import jieba.posseg as pseg
 # general = C024FEN2R
 # test room C0E6X8ELB
 
@@ -106,26 +107,31 @@ def cut_msg(msg_text):
     return word_list
 
 def msg_handler(msgs):
+    '''
+    handle message to decide which function should be executed and which message would this function execute
+    '''
+    execute_function = None
+    executed_msg = None
     for msg in msgs:
-        if "channel" not in msg:
+        executed_msg = msg
+        if "channel" not in msg:  # If no channel info in this msg, ignore this msg
             continue
-        if "ts" not in msg:
+        if "ts" not in msg:  # If no timestamp in this msg, ignore this msg
             continue
-        if "text" not in msg:
+        if "text" not in msg:  # If no message text in this msg, ignore this msg
             continue
-        if abs(float(msg["ts"]) - time.time()) < 90:
+        if abs(float(msg["ts"]) - time.time()) < 90:  # If this message is 90 second before, ignore this message
+            word_list = cut_msg(msg["text"])  # 得到切好的詞
+            for word_with_flag in word_list:
+                if word_with_flag['flag'] == 'n':  # Use noun in message text to decide which function should be executed
+                    for keyword in KEYWORD_LIST.keys():
+                        if word_with_flag['value'].encode('utf-8') in keyword:  # If the noun in message match the KEYWORD set above, run the function belong that keyword
+                            execute_function = KEYWORD_LIST[keyword]
+                            return [execute_function ,executed_msg]
 
-            if msg["text"][:2] == u"吃啥" and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "eat"}
-            if msg["text"] == u"本週新片" and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": None, "types": "movie"}
-            if msg["text"] == u"本週排行" and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": None, "types": "top_movie"}
-            if msg["text"][:2] == u"天氣" and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "weather"}
-            if u"羅伯特" in msg["text"] and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "Robot"}
-    return {"status": False, "channel": None}
+            return [execute_function ,executed_msg]
+
+    return [execute_function, executed_msg]
 
 
 if __name__=='__main__':
