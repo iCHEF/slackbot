@@ -11,7 +11,7 @@ import ConfigParser
 # general = C024FEN2R
 # test room C0E6X8ELB
 
-BIND_CH = ["C024FEN2R"]
+BIND_CH = ["C0E6X8ELB"]
 
 
 def send_eat_msg(sc, channel, args):
@@ -35,7 +35,7 @@ def send_eat_msg(sc, channel, args):
     args = {
         "channel": channel,
         "text": eat_result[choose]["title"].encode("utf-8"),
-        "username": u"愛雪芙羅伯特".encode("utf-8"),
+        "username": u"愛雪芙卍美食卍羅伯特".encode("utf-8"),
         "as_user": False,
         "attachments": json.dumps(attachments)
     }
@@ -50,27 +50,39 @@ def send_movie_msg(sc, channel, is_top=False):
     args = {
         "channel": channel,
         "text": "Hey Guys",
-        "username": u"愛雪芙羅伯特".encode("utf-8"),
+        "username": u"愛雪芙卍電影卍羅伯特".encode("utf-8"),
         "as_user": False,
         "attachments": json.dumps(attachments)
     }
     sc.api_call("chat.postMessage", **args)
 
 
-def send_weather_msg(sc, channel, is_top=False):
-    if is_top:
-        attachments = weather.weather()
-    else:
-        attachments = weather.weather()
+def send_weather_msg(sc, channel, city):
+
+    attachments = weather.weather(city)
     args = {
         "channel": channel,
-        "text": "Hey Guys",
-        "username": u"愛雪芙羅伯特".encode("utf-8"),
+        "text": city[3:].encode("utf-8"),
+        "username": u"愛雪芙卍天氣卍羅伯特".encode("utf-8"),
         "as_user": False,
         "attachments": json.dumps(attachments)
     }
     sc.api_call("chat.postMessage", **args)
 
+def send_hello_msg(sc, channel, msg):
+
+    if u"我愛你" in msg:
+        text = u"人家... 人家才不愛你呢！哼！！"
+    else:
+        text = u"你... 你一直叫我，我也不會理你的喲 >////<"
+
+    args = {
+        "channel": channel,
+        "text": text.encode("utf-8"),
+        "username": u"愛雪芙羅伯特".encode("utf-8"),
+        "as_user": False,
+    }
+    sc.api_call("chat.postMessage", **args)
 
 def msg_handler(msgs):
     for msg in msgs:
@@ -87,8 +99,10 @@ def msg_handler(msgs):
                 return {"status": True, "channel": msg["channel"], "args": None, "types": "movie"}
             if msg["text"] == u"本週排行" and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": None, "types": "top_movie"}
-            if msg["text"] == u"天氣" and msg["channel"] in BIND_CH:
-                return {"status": True, "channel": msg["channel"], "args": None, "types": "weather"}
+            if msg["text"][:2] == u"天氣" and msg["channel"] in BIND_CH:
+                return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "weather"}
+            if u"羅伯特" in msg["text"] and msg["channel"] in BIND_CH:
+                return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "Robot"}
     return {"status": False, "channel": None}
 
 config = ConfigParser.ConfigParser()
@@ -106,7 +120,9 @@ if sc.rtm_connect():
             if result["types"] == "top_movie":
                 send_movie_msg(sc, result["channel"], is_top=True)
             if result["types"] == "weather":
-                send_weather_msg(sc, result["channel"], is_top=True)
+                send_weather_msg(sc, result["channel"], result["args"])
+            if result["types"] == "Robot":
+                send_hello_msg(sc, result["channel"], result["args"])
         time.sleep(1)
 else:
     print "Connection Failed, invalid token?"
