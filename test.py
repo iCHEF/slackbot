@@ -8,11 +8,19 @@ import movie
 import random
 import weather
 import ConfigParser
+# encoding=utf-8
+import jieba
 # general = C024FEN2R
 # test room C0E6X8ELB
 
 BIND_CH = ["C0E6X8ELB"]
 
+# 關鍵字列表，當句子中相關的詞彙時，使用該詞彙相關的功能
+KEYWORD_LIST = {
+    '午餐,晚餐':search.search_eat,
+    '新片,排行':movie.top_movie,
+    '天氣':weather.weather,
+}
 
 def send_eat_msg(sc, channel, args):
     check = args.split(" ")
@@ -86,6 +94,14 @@ def send_hello_msg(sc, channel, msg):
     sc.api_call("chat.postMessage", **args)
 
 
+def cut_msg(msg_text):
+    '''
+    用結巴切字詞，並回傳切好的字詞的list
+    '''
+    seg_list = jieba.cut(msg_text, cut_all=False)
+    text_list = "$$".join(seg_list)  # 精确模式
+    return text_list.split("$$")
+
 def msg_handler(msgs):
     for msg in msgs:
         if "channel" not in msg:
@@ -95,6 +111,7 @@ def msg_handler(msgs):
         if "text" not in msg:
             continue
         if abs(float(msg["ts"]) - time.time()) < 90:
+
             if msg["text"][:2] == u"吃啥" and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "eat"}
             if msg["text"] == u"本週新片" and msg["channel"] in BIND_CH:
