@@ -10,6 +10,8 @@ import weather
 import ConfigParser
 
 from hello import hello_msg
+
+from response import Response
 # encoding=utf-8
 import jieba
 import jieba.posseg as pseg
@@ -147,9 +149,12 @@ if __name__=='__main__':
             messages = slack_client.rtm_read()
             execute_function, msg = msg_handler(messages)
             if execute_function is not None:
-                reponse_args = execute_function(msg['text'])
-                reponse_args['channel'] = msg['channel']
-                slack_client.api_call("chat.postMessage", **reponse_args)
+                response = execute_function(msg['text'])
+                if isinstance(response, Response):  # check if function return regular response type
+                    response_args = response.get_args(msg['channel'])
+                else:
+                    raise InputError("wrong response type")
+                slack_client.api_call("chat.postMessage", **response_args)
 
             time.sleep(1)
     else:

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from response import Response
+
 def hello_msg(msg_text):
 
     if u"我愛你" in msg_text:
@@ -6,11 +8,4 @@ def hello_msg(msg_text):
     else:
         text = u"你... 你一直叫我，我也不會理你的喲 >////<"
 
-    args = {
-        # "channel": channel,
-        "text": text.encode("utf-8"),
-        "username": u"愛雪芙羅伯特".encode("utf-8"),
-        "as_user": False,
-    }
-
-    return args
+    return Response(text=text.encode("utf-8"))

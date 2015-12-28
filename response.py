@@ -9,7 +9,11 @@ class Response(object):
         self.username = username
         self.attachments = attachments
 
-    def get_args(channel):
+    def get_args(self, channel):
+        '''Get full args that send slack message needed
+
+        channel: set channel that this message would be sent
+        '''
         args = {
             "channel": channel,
             "text": self.text,
