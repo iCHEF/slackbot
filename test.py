@@ -96,11 +96,14 @@ def send_hello_msg(sc, channel, msg):
 
 def cut_msg(msg_text):
     '''
-    用結巴切字詞，並回傳切好的字詞的list
+    用結巴切字詞並分出詞性，回傳每一個字詞都是包含內容跟詞性的list
+    https://gist.github.com/luw2007/6016931  詞性分析
     '''
-    seg_list = jieba.cut(msg_text, cut_all=False)
-    text_list = "$$".join(seg_list)  # 精确模式
-    return text_list.split("$$")
+    word_list = []
+    words = pseg.cut(msg_text)
+    for word, flag in words:
+        word_list.append(dict(value=word, flag=flag))
+    return word_list
 
 def msg_handler(msgs):
     for msg in msgs:
