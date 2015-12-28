@@ -141,18 +141,13 @@ if __name__=='__main__':
     slack_client = SlackClient(token)
     if slack_client.rtm_connect():
         while True:
-            result = msg_handler(sc.rtm_read())
-            if result["status"] is True:
-                if result["types"] == "eat":
-                    send_eat_msg(sc, result["channel"], result["args"])
-                if result["types"] == "movie":
-                    send_movie_msg(sc, result["channel"])
-                if result["types"] == "top_movie":
-                    send_movie_msg(sc, result["channel"], is_top=True)
-                if result["types"] == "weather":
-                    send_weather_msg(sc, result["channel"], result["args"])
-                if result["types"] == "Robot":
-                    send_hello_msg(sc, result["channel"], result["args"])
+            messages = slack_client.rtm_read()
+            execute_function, msg = msg_handler(messages)
+            if execute_function is not None:
+                reponse_args = execute_function(msg['text'])
+                reponse_args['channel'] = msg['channel']
+                slack_client.api_call("chat.postMessage", **reponse_args)
+
             time.sleep(1)
     else:
         print "Connection Failed, invalid token?"
