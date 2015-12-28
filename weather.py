@@ -3,9 +3,29 @@
 import urllib
 from bs4 import BeautifulSoup
 
-def weather():
-    url = "http://www.cwb.gov.tw/V7/forecast/taiwan/Taipei_City.htm"
+CITY_DICTIONARY = {
+    u"台北市":"Taipei_City",
+    u"台北":"Taipei_City",
+    u"新北市":"New_Taipei_City",
+    u"新北":"New_Taipei_City",
+    u"台中市":"Taichung_City",
+    u"台中":"Taichung_City",
+    u"台南市":"Tainan_City",
+    u"台南":"Tainan_City",
+    u"高雄市":"Kaohsiung_City",
+    u"高雄":"Kaohsiung_City",
+}
 
+def weather(city):
+    location = CITY_DICTIONARY.get(city[3:],None)
+    if location is None:
+        return [{
+                "fallback": "weather",
+                "title": u"機器人壞掉惹",
+                "text": city[3:] + u"什麼的人家聽不懂啦QAQ"
+            }]
+    url = "http://www.cwb.gov.tw/V7/forecast/taiwan/"+location+".htm"
+    
     webfile = urllib.urlopen(url)
     webcontext = webfile.read()
     soup = BeautifulSoup(webcontext, "html.parser")
