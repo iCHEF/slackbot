@@ -9,6 +9,7 @@ import movie
 import random
 import weather
 import ConfigParser
+import jieba
 # general = C024FEN2R
 # test room C0E6X8ELB
 
@@ -58,12 +59,13 @@ def send_movie_msg(sc, channel, is_top=False):
     sc.api_call("chat.postMessage", **args)
 
 
-def send_weather_msg(sc, channel, city):
-
-    attachments = weather.weather(city)
+def send_weather_msg(sc, channel, msg):
+    city = list(jieba.cut(msg))
+    city.remove(u"天氣")
+    attachments = weather.weather2(city[0])
     args = {
         "channel": channel,
-        "text": city[3:].encode("utf-8"),
+        "text": city[0].encode("utf-8"),
         "username": u"愛雪芙卍天氣卍羅伯特".encode("utf-8"),
         "as_user": False,
         "attachments": json.dumps(attachments)
@@ -95,6 +97,7 @@ def msg_handler(msgs):
             continue
         if "text" not in msg:
             continue
+
         if abs(float(msg["ts"]) - time.time()) < 90:
             if msg["text"][:2] == u"吃啥" and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "eat"}
@@ -102,7 +105,7 @@ def msg_handler(msgs):
                 return {"status": True, "channel": msg["channel"], "args": None, "types": "movie"}
             if msg["text"] == u"本週排行" and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": None, "types": "top_movie"}
-            if msg["text"][:2] == u"天氣" and msg["channel"] in BIND_CH:
+            if u"天氣" in jieba.cut(msg["text"]) and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "weather"}
             if u"羅伯特" in msg["text"] and msg["channel"] in BIND_CH:
                 return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "Robot"}
