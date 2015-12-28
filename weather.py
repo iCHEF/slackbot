@@ -65,26 +65,32 @@ def covert_tempture(temp):
     return (temp-32)*5/9
 
 
-def weather2(city=u"台北"):
-    if type(city) == unicode:
-        city = city.encode("utf8")
-    if "%s" % city[-1] != "市":
-        city = "%s市" % city
+def weather2(city=u"六都"):
+    if city == u"六都":
+        citys = ["台北市", "新北市", "桃園市", "台中市", "台南市", "高雄市"]
+    else:
+        if type(city) == unicode:
+            city = city.encode("utf8")
+        if "%s" % city[-1] != "市":
+            city = "%s市" % city
+        citys = [city]
 
-    test = urllib2.quote('select item.description, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="%s, 台灣")' % city)
-    url = "https://query.yahooapis.com/v1/public/yql?q=" + test + "&format=json"
-
-    data = json.loads(requests.get(url).content)
     result = []
-    if data["query"]["count"] > 1:
-        result_data = data["query"]["results"]["channel"]
-        for rd in result_data:
-            soup = BeautifulSoup(rd["item"]["description"], "html.parser")
-            temp = {
-                "fallback": "weather",
-                "title": u"溫度：%s~%s" % (covert_tempture(rd["item"]["forecast"]["low"]), covert_tempture(rd["item"]["forecast"]["high"])),
-                "thumb_url": soup.find("img")["src"]
-            }
-            result.append(temp)
-            break
+    for _city in citys:
+        test = urllib2.quote('select item.description, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="%s, 台灣")' % _city)
+        url = "https://query.yahooapis.com/v1/public/yql?q=" + test + "&format=json"
+
+        data = json.loads(requests.get(url).content)
+        if data["query"]["count"] > 1:
+            result_data = data["query"]["results"]["channel"]
+            for rd in result_data:
+                soup = BeautifulSoup(rd["item"]["description"], "html.parser")
+                temp = {
+                    "fallback": "weather",
+                    "text": u"%s" % _city.decode("utf8"),
+                    "title": u"溫度：%s~%s" % (covert_tempture(rd["item"]["forecast"]["low"]), covert_tempture(rd["item"]["forecast"]["high"])),
+                    "thumb_url": soup.find("img")["src"]
+                }
+                result.append(temp)
+                break
     return result
