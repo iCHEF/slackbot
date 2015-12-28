@@ -16,6 +16,7 @@ pip install -r r.txt
 python test.py
 ```
 How to add new feature？
+
 1. Add new python file for your feature.
 2. At top in test.py, add your keyword and the function you want to execute when message user types match the keyword to KEYWORD_LIST. If there are multiple keyword, use cama to split. EX: '電影,新片'
 3. In your python feature file, import response.py and use the Response class as return value, like below
