@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
+from datetime import datetime
 from slackclient import SlackClient
 import search
 import json
@@ -113,6 +114,8 @@ token = config.get("ichef", "token")  # found at https://api.slack.com/web#authe
 sc = SlackClient(token)
 if sc.rtm_connect():
     while True:
+        if datetime.now().hour == 18 and datetime.now().minute == 30 and datetime.now().second == 0:
+            send_weather_msg(sc, "C024FEN2R", u"天氣 台北市")
         result = msg_handler(sc.rtm_read())
         if result["status"] is True:
             if result["types"] == "eat":
