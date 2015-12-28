@@ -69,6 +69,7 @@ def send_weather_msg(sc, channel, city):
     }
     sc.api_call("chat.postMessage", **args)
 
+
 def send_hello_msg(sc, channel, msg):
 
     if u"我愛你" in msg:
@@ -83,6 +84,7 @@ def send_hello_msg(sc, channel, msg):
         "as_user": False,
     }
     sc.api_call("chat.postMessage", **args)
+
 
 def msg_handler(msgs):
     for msg in msgs:

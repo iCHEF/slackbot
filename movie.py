@@ -3,6 +3,7 @@
 import urllib
 from bs4 import BeautifulSoup
 
+
 def week_movie():
     url = "https://tw.movies.yahoo.com/movie_thisweek.html"
 
@@ -15,12 +16,12 @@ def week_movie():
         movie_date = li.find("span", {"class": "date"}).text
         test = li.find("a")
         temp = {
-                "fallback": "movie",
-                "title": test.img["title"],
-                "title_link": test["href"],
-                "text": movie_date,
-                "thumb_url": test.img["src"]
-            }
+            "fallback": "movie",
+            "title": test.img["title"],
+            "title_link": test["href"],
+            "text": movie_date,
+            "thumb_url": test.img["src"]
+        }
         result.append(temp)
     return result
 
@@ -40,9 +41,9 @@ def top_movie():
         link = li.find("a")["href"]
 
         temp = {
-                "fallback": "movie",
-                "title": title,
-                "title_link": link,
-            }
+            "fallback": "movie",
+            "title": title,
+            "title_link": link,
+        }
         result.append(temp)
     return result
