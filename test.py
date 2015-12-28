@@ -107,24 +107,26 @@ def msg_handler(msgs):
                 return {"status": True, "channel": msg["channel"], "args": msg["text"], "types": "Robot"}
     return {"status": False, "channel": None}
 
-config = ConfigParser.ConfigParser()
-config.readfp(open('config.ini'))
-token = config.get("ichef", "token")  # found at https://api.slack.com/web#authentication
-sc = SlackClient(token)
-if sc.rtm_connect():
-    while True:
-        result = msg_handler(sc.rtm_read())
-        if result["status"] is True:
-            if result["types"] == "eat":
-                send_eat_msg(sc, result["channel"], result["args"])
-            if result["types"] == "movie":
-                send_movie_msg(sc, result["channel"])
-            if result["types"] == "top_movie":
-                send_movie_msg(sc, result["channel"], is_top=True)
-            if result["types"] == "weather":
-                send_weather_msg(sc, result["channel"], result["args"])
-            if result["types"] == "Robot":
-                send_hello_msg(sc, result["channel"], result["args"])
-        time.sleep(1)
-else:
-    print "Connection Failed, invalid token?"
+
+if __name__=='__main__':
+    config = ConfigParser.ConfigParser()
+    config.readfp(open('config.ini')) # load your slack token in config.ini
+    token = config.get("ichef", "token")  # found at https://api.slack.com/web#authentication
+    slack_client = SlackClient(token)
+    if slack_client.rtm_connect():
+        while True:
+            result = msg_handler(sc.rtm_read())
+            if result["status"] is True:
+                if result["types"] == "eat":
+                    send_eat_msg(sc, result["channel"], result["args"])
+                if result["types"] == "movie":
+                    send_movie_msg(sc, result["channel"])
+                if result["types"] == "top_movie":
+                    send_movie_msg(sc, result["channel"], is_top=True)
+                if result["types"] == "weather":
+                    send_weather_msg(sc, result["channel"], result["args"])
+                if result["types"] == "Robot":
+                    send_hello_msg(sc, result["channel"], result["args"])
+            time.sleep(1)
+    else:
+        print "Connection Failed, invalid token?"
