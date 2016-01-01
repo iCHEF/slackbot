@@ -60,13 +60,22 @@ def send_movie_msg(sc, channel, is_top=False):
 
 
 def send_weather_msg(sc, channel, msg):
+    msg = msg.replace(u"天氣", "").replace(" ", "")
     city = list(jieba.cut(msg))
-    city.remove(u"天氣")
-    attachments = weather.weather2(city[0])
-    if city[0] == u"六都":
+    if len(city) > 0:
+        attachments, is_searched = weather.weather3(city[0])
+        if city[0] == u"六都":
+            text = u"愛雪芙氣象報告".encode("utf-8")
+        else:
+            text = city[0].encode("utf-8")
+    else:
+        attachments, is_searched = weather.weather3()
+
+    if is_searched is True:
         text = u"愛雪芙氣象報告".encode("utf-8")
     else:
-        text = city[0].encode("utf-8")
+        text = u"找不到您說的城市，所以給你天龍國的天氣，吱吱".encode("utf-8")
+
     args = {
         "channel": channel,
         "text": text,

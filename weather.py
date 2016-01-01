@@ -4,6 +4,8 @@ import urllib
 import urllib2
 import requests
 import json
+import pandas
+import jieba
 from bs4 import BeautifulSoup
 
 CITY_DICTIONARY = {
@@ -94,3 +96,53 @@ def weather2(city=u"六都"):
                 result.append(temp)
                 break
     return result
+
+def weather3(city=u"台北"):
+    if type(city) == unicode:
+        city = city.encode("utf8")
+
+    if "台" in city:
+        city = city.replace("台", "臺")
+
+    url = "http://www.cwb.gov.tw/V7/forecast/f_index.htm?_=1451639961021"
+    webfile = urllib.urlopen(url)
+    webcontext = webfile.read()
+    soup = BeautifulSoup(webcontext, "html.parser")
+    table_list = soup.findAll("table")
+    weather_result = []
+    for table in table_list:
+        table_body = table.find('tbody')
+
+        rows = table.find_all('tr')
+        for row in rows:
+            cols = row.find_all('td')
+            temp = {
+                "fallback": "weather",
+                "title": "",
+                "pretext": "",
+                "text": "",
+                "thumb_url": ""
+            }
+            info = ["title", "pretext", "text", "thumb_url"]
+            if len(cols) > 0:
+                for idx, col in enumerate(cols):
+                    if col.text != "":
+                        temp.update({info[idx]: col.text})
+                    else:
+                        temp.update({info[idx]: col.img["src"]})
+                if len(temp) == 5:
+                    weather_result.append(temp)
+    weather_result = pandas.DataFrame(weather_result)
+    weather_result["pretext"] = u"溫度：" + weather_result["pretext"]
+    weather_result["text"] = u"降雨機率:" + weather_result["text"]
+    weather_result["thumb_url"] = u"http://www.cwb.gov.tw" + weather_result["thumb_url"]
+
+    weather_result["city"] = weather_result["title"].map(lambda x: True if city in x.encode("utf8") else False)
+
+    result = weather_result[weather_result["city"] == True]
+    if result.empty is True:
+        weather_result = weather_result.drop(["city"], axis=1)
+        return [weather_result.ix[1].to_dict()], False
+    else:
+        result = result.drop(["city"], axis=1)
+        return result.to_dict(orient="records"), True
