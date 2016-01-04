@@ -13,8 +13,10 @@ import jieba
 # general = C024FEN2R
 # test room C0E6X8ELB
 
-BIND_CH = ["C0E6X8ELB"]
+BIND_CH = ["C024FEN2R"]
 jieba.add_word(u"六都", freq=None, tag=None)
+jieba.add_word(u"台中", freq=None, tag=None)
+
 
 def send_eat_msg(sc, channel, args):
     check = args.split(" ")
@@ -130,8 +132,12 @@ token = config.get("ichef", "token")  # found at https://api.slack.com/web#authe
 sc = SlackClient(token)
 if sc.rtm_connect():
     while True:
-        if datetime.now().hour == 22 and datetime.now().minute == 51 and datetime.now().second == 0:
-            send_weather_msg(sc, "C024FEN2R", u"六都天氣")
+        if datetime.now().hour == 8 and datetime.now().minute == 0 and datetime.now().second == 0:
+            send_weather_msg(sc, "C024FEN2R", u"天氣 北")
+            send_weather_msg(sc, "C024FEN2R", u"天氣 桃園")
+            send_weather_msg(sc, "C024FEN2R", u"天氣 台中")
+            send_weather_msg(sc, "C024FEN2R", u"天氣 台南")
+            send_weather_msg(sc, "C024FEN2R", u"天氣 高雄")
         result = msg_handler(sc.rtm_read())
         if result["status"] is True:
             if result["types"] == "eat":
